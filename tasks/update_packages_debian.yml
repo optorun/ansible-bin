@@ -1,0 +1,56 @@
+---
+
+- name: "[INFO] [Debian] Print holded packages"
+  ansible.builtin.debug:
+    msg:
+      - "Holded packages:"
+      - "{{ ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([]) }}"
+  when: (ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([])) | length>0
+
+- name: "[Debian] Hold packages"
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop: "{{ ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([]) }}"
+  changed_when: false
+
+- name: "[Debian] Update packages"
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+    name: "*"
+    state: latest
+  register: _ansible_bin_packages_update_output
+
+- name: "[INFO] [Debian] Print installed/updated packages"
+  ansible.builtin.debug:
+    var: _ansible_bin_packages_update_output.stdout_lines|d()
+  when: _ansible_bin_packages_update_output.skipped is not defined
+
+- name: "[Debian] Cleanup"
+  ansible.builtin.apt:
+    autoremove: true
+  register: _ansible_bin_packages_cleanup_output
+
+- name: "[INFO] [Debian] Print removed packages"
+  ansible.builtin.debug:
+    var: _ansible_bin_packages_cleanup_output.stdout_lines|d()
+  when: _ansible_bin_packages_cleanup_output.skipped is not defined
+
+- name: "[Debian] Unhold packages"
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: install
+  loop: "{{ ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([]) }}"
+  changed_when: false
+
+- name: "[Debian] Check if a reboot is needed"
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: _ansible_bin_rebootcheck_output
+  changed_when: _ansible_bin_rebootcheck_output.stat.exists|d()|bool
+  notify:
+    - System-reboot
+
+- name: Execute handlers immediately
+  ansible.builtin.meta: flush_handlers

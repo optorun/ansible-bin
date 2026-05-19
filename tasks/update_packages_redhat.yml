@@ -1,0 +1,45 @@
+---
+
+- name: "[INFO] [RHEL] Print excluded packages"
+  ansible.builtin.debug:
+    msg:
+      - "Excluded packages:"
+      - "{{ ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([]) }}"
+  when: (ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([])) | length>0
+
+- name: "[RHEL] Update packages"
+  ansible.builtin.dnf:
+    update_cache: true
+    name: "*"
+    state: latest
+    exclude: "{{ ansible_bin_packages_versionlock_common|d([]) + ansible_bin_packages_versionlock|d([]) }}"
+    use_backend: dnf4
+  register: _ansible_bin_packages_update_output
+
+- name: "[INFO] [RHEL] Print installed/updated packages"
+  ansible.builtin.debug:
+    var: _ansible_bin_packages_update_output.results|d()
+  when: _ansible_bin_packages_update_output.skipped is not defined
+
+- name: "[RHEL] Cleanup"
+  ansible.builtin.dnf:
+    autoremove: true
+    use_backend: dnf4
+  register: _ansible_bin_packages_cleanup_output
+
+- name: "[INFO] [RHEL] Print removed packages"
+  ansible.builtin.debug:
+    var: _ansible_bin_packages_cleanup_output.results|d()
+  when: _ansible_bin_packages_cleanup_output.skipped is not defined
+
+- name: "[RHEL] Check if a reboot is needed"
+  ansible.builtin.command:
+    cmd: needs-restarting -r
+  register: _ansible_bin_rebootcheck_output
+  failed_when: false
+  changed_when: _ansible_bin_rebootcheck_output.rc|d()|bool
+  notify:
+    - System-reboot
+
+- name: Execute handlers immediately
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,7 @@
+---
+
+- name: "[RHEL] Install base packages"
+  ansible.builtin.dnf:
+    update_cache: true
+    name: "{{ ansible_bin_dnf_packages_common|d([]) + ansible_bin_dnf_packages|d([]) | list }}"
+    state: present

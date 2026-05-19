@@ -1,0 +1,20 @@
+---
+
+# List of rpm packages that must be present on managed nodes
+# There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+ansible_bin_dnf_packages_common: []
+ansible_bin_dnf_packages: []
+
+# List of dpkg packages that must be present on managed nodes
+# There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+ansible_bin_apt_packages_common: []
+ansible_bin_apt_packages: []
+
+# List of packages to exclude from update process
+# Note: dnf exclude feature supports patterns, but dpkg --set-selections doesn't. Both RHEL and Debian systems uses this variable in this role, so proceed carefully
+# There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+ansible_bin_packages_versionlock_common: []
+ansible_bin_packages_versionlock: []
+
+# Automatically reboot systems that requires it after update
+ansible_bin_autoreboot: false

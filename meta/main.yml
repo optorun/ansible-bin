@@ -1,0 +1,23 @@
+---
+
+galaxy_info:
+  role_name: ansible-bin
+  author: Pierre TOURON
+  description: Manage binaries and scripts install, update, download, ...
+
+  license: MIT
+
+  min_ansible_version: "2.1"
+
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: EL
+      versions:
+        - "8"
+
+collections: []
+
+dependencies: []

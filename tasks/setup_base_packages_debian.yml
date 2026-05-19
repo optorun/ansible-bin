@@ -1,0 +1,7 @@
+---
+
+- name: "[Debian] Install base packages"
+  ansible.builtin.apt:
+    update_cache: true
+    name: "{{ ansible_bin_apt_packages_common|d([]) + ansible_bin_apt_packages|d([]) | list }}"
+    state: present
