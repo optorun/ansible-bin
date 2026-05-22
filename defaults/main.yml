@@ -1,5 +1,18 @@
 ---
 
+# List of custom apt repositories that must be present on managed nodes
+# There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+# Please note that some remote mirrors enforce settings (like the signed-by option in sources.list files) from there InRelease metadata, thus making it unmanageable with this role. There are ways to bypass it, but not without heavily altering how the role works
+ansible_bin_apt_custom_repositories_common: []
+#  - repoName: example
+#    repoBaseUrl: https://example.url/example/path
+#    repoDistributionRelease: stable
+#    repoComponents: contrib
+#    signingKeyUrl: https://example.url/example.pub
+#    signingKeyHash: sha256:8e7b4c3d15cce912dc8f44cc2381b9619d735e90ca3178e0b05f5eb38f6d1171
+#    signingKeyIsArmored: true
+ansible_bin_apt_custom_repositories: []
+
 # List of rpm packages that must be present on managed nodes
 # There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
 ansible_bin_dnf_packages_common: []
