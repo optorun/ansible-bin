@@ -11,20 +11,22 @@
           - ansible_os_family
 
   tasks:
-    - name: Verify apt custom repositories are configured
-      ansible.builtin.stat:
-        path: "/etc/apt/sources.list.d/{{ item.repoName }}.list"
-      loop: "{{ ansible_bin_apt_custom_repositories_common | d([]) + ansible_bin_apt_custom_repositories | d([]) }}"
+    - name: Verify apt custom repository files exists
+      ansible.builtin.find:
+        paths: /etc/apt/sources.list.d/
+        patterns: "{{ item.repoName }}.*"
       register: _tests_apt_repo_files
+      loop: "{{ ansible_bin_apt_custom_repositories_common | d([]) + ansible_bin_apt_custom_repositories | d([]) }}"
       when: ansible_os_family == 'Debian'
 
     - name: Assert apt custom repositories are present
       ansible.builtin.assert:
-        that: item.stat.exists
-        fail_msg: "Repository file for '{{ item.item.repoName }}' is missing"
-        success_msg: "Repository file for '{{ item.item.repoName }}' is present"
-        quiet: true
-      loop: "{{ _tests_apt_repo_files.results }}"
+        that: _tests_apt_repo_files.results[index].files | length > 0
+        fail_msg: "Repository file for '{{ item.repoName }}' is missing"
+        success_msg: "Repository file for '{{ item.repoName }}' is present"
+      loop: "{{ ansible_bin_apt_custom_repositories_common | d([]) + ansible_bin_apt_custom_repositories | d([]) }}"
+      loop_control:
+        index_var: index
       when: ansible_os_family == 'Debian'
 
     - name: Verify packages are installed

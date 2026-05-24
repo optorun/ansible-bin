@@ -1,18 +1,20 @@
 ---
 
-- name: "[Debian] Get signing key for apt custom repository"
-  ansible.builtin.get_url:
-    url: "{{ item.signingKeyUrl }}"
-    dest: "/usr/share/keyrings/{{ item.repoName }}{{ '.asc' if item.signingKeyIsArmored|d(true)|bool else '.gpg' }}" # File extension matters. Alternatively, keys could be downloaded to /etc/apt/trusted.gpg.d/, where extension doesn't matter but then key would be trusted for every repository not pointing to a specific key (through signed-by option)
-    checksum: "{{ item.signingKeyHash }}"
-    mode: 0644
-  loop: "{{ ansible_bin_apt_custom_repositories_common|d([]) + ansible_bin_apt_custom_repositories|d([]) }}"
-  when: item.signingKeyUrl is defined
+- name: "[Debian] Ensure python3-debian is present"
+  ansible.builtin.apt:
+    name: python3-debian
+    state: present
 
 - name: "[Debian] Add apt custom repository"
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64{{ (' signed-by=/usr/share/keyrings/' + item.repoName + ('.asc' if item.signingKeyIsArmored|d(true)|bool else '.gpg')) if item.signingKeyUrl is defined }}] {{ item.repoBaseUrl }} {{ item.repoDistributionRelease }}{{ ' ' + item.repoComponents if item.repoComponents is defined }}"
-    filename: "{{ item.repoName }}"
+  ansible.builtin.deb822_repository:
+    name: "{{ item.repoName }}"
+    types: "{{ item.repoTypes|d(['deb']) }}"
+    uris: "{{ item.repoBaseUrl }}"
+    suites: "{{ item.repoDistributionReleases|d(['/']) }}"
+    components: "{{ item.repoComponents|d(omit) }}"
+    architectures: "{{ item.repoArchitecture|d(['amd64']) }}"
+    signed_by: "{{ item.repoSigningKey|d(omit) }}"
+    trusted: "{{ item.trusted|bool|d(omit) }}"
     mode: 0644
     state: present
   loop: "{{ ansible_bin_apt_custom_repositories_common|d([]) + ansible_bin_apt_custom_repositories|d([]) }}"
