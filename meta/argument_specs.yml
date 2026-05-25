@@ -1,0 +1,191 @@
+---
+
+argument_specs:
+  main:
+    short_description: Manage binaries and scripts install, update, download, ...
+    description:
+      - Setup custom APT repositories (Debian systems only)
+      - Install base packages list (Debian and RHEL-based systems)
+      - Provides tasks to upgrade packages on manages systems, supporting an exclusion list (Debian and RHEL-based systems)
+
+    options:
+      ansible_bin_apt_custom_repositories_common:
+        description: |
+          List of custom apt repositories that must be present on managed nodes
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be the common list
+        type: list
+        elements: dict
+        required: false
+        default: []
+        options:
+          repoName:
+            description: Repository name. doesn't need to match anything
+            type: str
+            required: true
+          repoBaseUrl:
+            description: Repository base URL
+            type: str
+            required: true
+          repoTypes:
+            description: Repository types (binaries, sources or both)
+            type: list
+            choices:
+              - deb
+              - deb-src
+            required: false
+            default:
+              - deb
+          repoDistributionReleases:
+            description: Repository releases / suites (bookworm, stable, ...)
+            type: list
+            required: false
+            default:
+              - /
+          repoComponents:
+            description: Repository components (contrib, non-free, ...)
+            type: list
+            required: false
+            default: []
+          repoArchitecture:
+            description: Repository intended architectures (amd64, arm64, ...)
+            type: list
+            required: false
+            default:
+              - amd64
+          repoSigningKey:
+            description: |
+              Public signing key (usually GPG) used to sign repository binaries (and / or metadata). Has to be armored
+              Key is passed as-is instead of a link for module to download as I understand there wouldn't be any verification
+            type: str
+            required: false
+            default: null
+          repoIsTrusted:
+            description: Whether repository is trusted. Skips signatures verification
+            type: bool
+            required: false
+            default: null
+
+      ansible_bin_apt_custom_repositories:
+        description: |
+          List of custom apt repositories that must be present on managed nodes
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be a more specific list
+        type: list
+        elements: dict
+        required: false
+        default: []
+        options:
+          repoName:
+            description: Repository name. doesn't need to match anything
+            type: str
+            required: true
+          repoBaseUrl:
+            description: Repository base URL
+            type: str
+            required: true
+          repoTypes:
+            description: Repository types (binaries, sources or both)
+            type: list
+            choices:
+              - deb
+              - deb-src
+            required: false
+            default:
+              - deb
+          repoDistributionReleases:
+            description: Repository releases / suites (bookworm, stable, ...)
+            type: list
+            required: false
+            default:
+              - /
+          repoComponents:
+            description: Repository components (contrib, non-free, ...)
+            type: list
+            required: false
+            default: []
+          repoArchitecture:
+            description: Repository intended architectures (amd64, arm64, ...)
+            type: list
+            required: false
+            default:
+              - amd64
+          repoSigningKey:
+            description: |
+              Public signing key (usually GPG) used to sign repository binaries (and / or metadata). Has to be armored
+              Key is passed as-is instead of a link for module to download as I understand there wouldn't be any verification
+            type: str
+            required: false
+            default: null
+          repoIsTrusted:
+            description: Whether repository is trusted. Skips signatures verification
+            type: bool
+            required: false
+            default: null
+
+      ansible_bin_dnf_packages_common:
+        description: |
+          List of rpm packages (installed through dnf) that must be present on managed nodes
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be the common list
+        type: list
+        elements: str
+        required: false
+        default: []
+
+      ansible_bin_dnf_packages:
+        description: |
+          List of rpm packages (installed through dnf) that must be present on managed nodes
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be a more specific list
+        type: list
+        elements: str
+        required: false
+        default: []
+
+      ansible_bin_apt_packages_common:
+        description: |
+          List of dpkg packages (installed through apt) that must be present on managed nodes
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be the common list
+        type: list
+        elements: str
+        required: false
+        default: []
+
+      ansible_bin_apt_packages:
+        description: |
+          List of dpkg packages (installed through apt) that must be present on managed nodes
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be a more specific list
+        type: list
+        elements: str
+        required: false
+        default: []
+
+      ansible_bin_packages_versionlock_common:
+        description: |
+          List of packages to exclude from update tasks
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be the common list
+        type: list
+        elements: str
+        required: false
+        default: []
+
+      ansible_bin_packages_versionlock:
+        description: |
+          List of packages to exclude from update tasks
+          There are two lists available, which are merged on run. Useful for instance to have one common in group_vars and another specific for each host
+          This one is intended to be a more specific list
+        type: list
+        elements: str
+        required: false
+        default: []
+
+      ansible_bin_autoreboot:
+        description: |
+          Whether to automatically reboot systems after updates, if required
+        type: bool
+        required: false
+        default: false
